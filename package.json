@@ -13,6 +13,7 @@
     "react-redux": "^9.1.2"
   },
   "scripts": {
+    "json-server": "json-server --watch db.json --port 5001",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
