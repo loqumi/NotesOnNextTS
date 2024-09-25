@@ -1,8 +1,8 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 export interface Note {
-    id: number;
+    id: number | string;
     title: string;
     content: string;
 }
@@ -21,30 +21,38 @@ const initialState: NotesState = {
 
 // Получение всех заметок
 export const fetchNotes = createAsyncThunk('notes/fetchNotes', async () => {
-    const response = await axios.get('http://localhost:5000/notes');
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`);
+    return response.data;
+});
+
+// Получение заметки по ID
+export const fetchNoteById = createAsyncThunk('notes/fetchNoteById', async (noteId: number) => {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes/${noteId}`);
+    return response.data;
+});
+
+// Добавление новой заметки
+export const createNote = createAsyncThunk('notes/createNote', async (note: Note) => {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notes`, note);
+    return response.data;
+});
+
+// Редактирование существующей заметки
+export const updateNote = createAsyncThunk('notes/updateNote', async (note: Note) => {
+    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/notes/${note.id}`, note);
     return response.data;
 });
 
 // Удаление заметки
 export const deleteNote = createAsyncThunk('notes/deleteNote', async (noteId: number) => {
-    await axios.delete(`http://localhost:5000/notes/${noteId}`);
+    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/notes/${noteId}`);
     return noteId;
 });
 
 const notesSlice = createSlice({
     name: 'notes',
     initialState,
-    reducers: {
-        addNote: (state, action: PayloadAction<Note>) => {
-            state.notes.push(action.payload);
-        },
-        editNote: (state, action: PayloadAction<Note>) => {
-            const index = state.notes.findIndex(note => note.id === action.payload.id);
-            if (index !== -1) {
-                state.notes[index] = action.payload;
-            }
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchNotes.pending, (state) => {
@@ -60,9 +68,35 @@ const notesSlice = createSlice({
             })
             .addCase(deleteNote.fulfilled, (state, action: PayloadAction<number>) => {
                 state.notes = state.notes.filter(note => note.id !== action.payload);
-            });
+            })
+            .addCase(deleteNote.rejected, (state, action) => {
+                state.error = action.error.message || 'Failed to delete note';
+            })
+            .addCase(fetchNoteById.pending, (state) => {
+                state.loading = true;
+             })
+            .addCase(createNote.fulfilled, (state, action: PayloadAction<Note>) => {
+                state.notes.push(action.payload);
+            })
+            .addCase(updateNote.fulfilled, (state, action: PayloadAction<Note>) => {
+                const index = state.notes.findIndex(note => note.id === action.payload.id);
+                if (index !== -1) {
+                    state.notes[index] = action.payload;
+                }
+            })
+            .addCase(fetchNoteById.fulfilled, (state, action) => {
+                const existingNoteIndex = state.notes.findIndex(note => note.id === action.payload.id);
+                if (existingNoteIndex === -1) {
+                    state.notes.push(action.payload);
+                }
+                state.loading = false;
+            })
+            .addCase(fetchNoteById.rejected, (state, action) => {
+                state.error = action.error.message || 'Failed to fetch the note';
+                state.loading = false;
+            }
+        );
     },
 });
 
-export const { addNote, editNote } = notesSlice.actions;
 export default notesSlice.reducer;
