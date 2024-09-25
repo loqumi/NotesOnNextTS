@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
+
 export interface Note {
     id: number | string;
     title: string;
@@ -19,33 +21,28 @@ const initialState: NotesState = {
     error: null,
 };
 
-// Получение всех заметок
 export const fetchNotes = createAsyncThunk('notes/fetchNotes', async () => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`);
+    const response = await axios.get(`/notes`);
     return response.data;
 });
 
-// Получение заметки по ID
 export const fetchNoteById = createAsyncThunk('notes/fetchNoteById', async (noteId: number) => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes/${noteId}`);
+    const response = await axios.get(`/notes/${noteId}`);
     return response.data;
 });
 
-// Добавление новой заметки
 export const createNote = createAsyncThunk('notes/createNote', async (note: Note) => {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notes`, note);
+    const response = await axios.post(`/notes`, note);
     return response.data;
 });
 
-// Редактирование существующей заметки
 export const updateNote = createAsyncThunk('notes/updateNote', async (note: Note) => {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/notes/${note.id}`, note);
+    const response = await axios.put(`/notes/${note.id}`, note);
     return response.data;
 });
 
-// Удаление заметки
 export const deleteNote = createAsyncThunk('notes/deleteNote', async (noteId: number) => {
-    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/notes/${noteId}`);
+    await axios.delete(`/notes/${noteId}`);
     return noteId;
 });
 

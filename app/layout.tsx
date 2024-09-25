@@ -18,7 +18,7 @@ export default function RootLayout({children}:
             <body>
                 <ReduxProvider>
                     <div className="container">
-                        <header className="py-3">
+                        <header className="py-3 border-bottom">
                             <h1>Notes App</h1>
                         </header>
                         <Layout children={children} />

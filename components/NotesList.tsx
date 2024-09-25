@@ -19,13 +19,11 @@ const NotesList = () => {
         dispatch(fetchNotes());
     }, [dispatch]);
 
-    // Фильтрация заметок по поисковому запросу
     const filteredNotes = notes.filter(note =>
         note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         note.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Сортировка заметок
     const sortedNotes = [...filteredNotes].sort((a, b) => {
         if (sortOrder === 'asc') {
             return a.title.localeCompare(b.title);
@@ -34,7 +32,6 @@ const NotesList = () => {
         }
     });
 
-    // Функция для удаления заметки
     const handleDeleteNote = (note: Note) => {
         setSelectedNote(note);
         setShowModal(true);
@@ -42,12 +39,11 @@ const NotesList = () => {
 
     const confirmDelete = async () => {
         if (selectedNote) {
-            await dispatch(deleteNote(Number(selectedNote.id))); // Удаляем заметку
+            await dispatch(deleteNote(Number(selectedNote.id)));
             dispatch(fetchNotes());
         }
         setShowModal(false);
     };
-
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;

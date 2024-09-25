@@ -39,7 +39,7 @@ export default function NoteDetail() {
     if (!note) return <p>Note not found!</p>;
 
     return (
-        <div>
+        <div className="form">
             <h2>{note?.title}</h2>
             <p>{note?.content}</p>
             <div>
