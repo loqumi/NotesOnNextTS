@@ -1,5 +1,7 @@
 # NotesOnNextTS
 
+Notes app, with the ability to add, delete and edit. There is filtering by name, and routing is organized.
+
 ### To run this application you need to:
 
 1. Write the command in the project console `npm i`
